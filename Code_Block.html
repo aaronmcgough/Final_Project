@@ -1,1 +1,280 @@
+<html>
+<head>
+<style type="text/css">
+code { background-color: gray; color: blue; }
+</style>
+</head>
+<body>
+<p>Here some code I developed in INFOTC 2040</p>
+<code>using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+//Aaron McGough Final Project
+namespace FinalProject
+{
+    class Program
+    {
+        static void LeaderBoard(List<Stats> statsList){//This function returns the stats
+            Console.WriteLine("Global Game Statistics\n---------------------------------\n---------------------------------\n");
+            Console.WriteLine("Top 10 Winning Players\n---------------------------------");
+            var topTen = from stats in statsList orderby stats.Wins descending select stats;//LINQ statement that selects the most winningest players
+            int iterations = 0;//I have this so it will print the top 10 winners
+            foreach(var a in topTen){
+                Console.WriteLine($"{a.Name}: {a.Wins}");
+                iterations += 1;
+                if (iterations == 10){
+                    break;
+                }
+            }
+            Console.WriteLine("\n---------------------------------");
+            Console.WriteLine("Most Games Played\n---------------------------------");
+            var topFive = from stats in statsList orderby stats.Plays descending select stats;//LINQ statement that selects the player that has played the most games
+            iterations = 0;//So it will only print the top 5 winners
+            foreach(var a in topFive){
+                Console.WriteLine($"{a.Name}: {a.Plays}");
+                iterations += 1;
+                if (iterations == 5){
+                    break;
+                }
+            }
+            Console.WriteLine("\n---------------------------------");
+            var winsNumber = from stats in statsList select stats;//LINQ statement that selects the stats
+            var losesNumber = from stats in statsList select stats;//Same here
+            double totalWin = 0;//Turns them into floats
+            double totalLoses = 0;//Ditto
+            foreach(var win in winsNumber){//Adds up the wins
+                totalWin += win.Wins;
+            }
+            foreach(var lose in losesNumber){//Adds up the loses
+                totalLoses += lose.Loses;
+            }
+            double ratio = totalWin/totalLoses;//Gets the ratio
+            double ratioRounded = Math.Round(ratio, 2, MidpointRounding.AwayFromZero);//Simplifies the ratio
+            Console.WriteLine($"Win/Loss Ratio: {ratioRounded}");
+            Console.WriteLine("\n---------------------------------");
+            var playsNumber = from stats in statsList select stats.Plays;//Finds out the total games played
+            int totalPlays = 0;
+            foreach(int play in playsNumber){
+                totalPlays += play;
+            }
+            Console.WriteLine($"Total Games Played: {totalPlays}\n---------------------------------\n");
 
+        }
+        static int ThreeCheck(){//This statement ensures that the user only inputs 1 2 or 3
+            string strDecision = Console.ReadLine();
+            if (strDecision == "1" || strDecision == "2" || strDecision == "3"){
+                return Convert.ToInt32(strDecision);
+            }else{
+                Console.Write("\n\nHey there...\nThat was an invalid input.\nPlease only input 1, 2, or 3\n\tthanks\n\nPlease Try Again: ");
+                return ThreeCheck();
+            }
+        }
+        static int FourCheck(){//This statement ensures that the user only inputs 1 2 or 3
+            string strDecision = Console.ReadLine();
+            if (strDecision == "1" || strDecision == "2" || strDecision == "3" || strDecision == "4"){
+                return Convert.ToInt32(strDecision);
+            }else{
+                Console.Write("\n\nHey there...\nThat was an invalid input.\nPlease only input 1, 2, 3, or 4\n\tthanks\n\nPlease Try Again: ");
+                return FourCheck();
+            }
+        }
+        static string startUp(int gameStart){//Gets the players name and returns it
+            while (gameStart != 3){
+                if(gameStart == 3){
+                    continue;
+                }
+                Console.Write("What is your name? ");
+                string playerName = Console.ReadLine();
+                return playerName;
+                
+            }
+            return "";
+        }
+        static int gameStart(){//Prints the main menu for the rock paper scissors game
+            Console.Write("Welcome to Rock, Paper, Scissors!\n\n\t1. Start New Game\n\t2. Load Game\n\t3. Quit\n\nEnter Choice: ");
+            return ThreeCheck();    
+        }
+        static void JumpPad(string playerName, int gameStart, List<Stats> statsList){//This is as the name implies the jumppad for the entire program
+            int play_again = 1;
+            if (gameStart == 1 ){//If the player is a new player
+                Console.WriteLine($"Hello {playerName}. Let's play!");
+                Stats newPlayer = new Stats(playerName, 0,0,0,0);//Creates a new player
+                statsList.Add(newPlayer);//Adds said player to the list
+                while (gameStart == 1 && play_again != 4){//Creates a loop that only exits when the player wants to
+                    if(play_again == 1){
+                        Game(statsList, playerName);//Plays a game
+                    }
+                    Console.Write("What would you like to do?\n\n\t1. Play Again\n\t2. View Player Statistics\n\t3. View Leaderboard\n\t4. Quit\n\nEnter Choice: ");
+                    play_again = FourCheck();
+                    if(play_again == 2){//View stats
+                        playerStats(statsList, playerName);
+                        continue;
+                    }
+                    if (play_again == 3){//View leaderboard
+                        LeaderBoard(statsList);
+                        continue;
+                    }
+                }
+                
+            }else if (gameStart == 2 && play_again != 4){//If the player is a returning player
+                Console.WriteLine($"Welcome back {playerName}. Let's play!");
+                while (play_again != 4){
+                    if(play_again == 1){//Play game
+                        Game(statsList, playerName);
+                    }
+                    Console.Write("What would you like to do?\n\n\t1. Play Again\n\t2. View Player Statistics\n\t3. View Leaderboard\n\t4. Quit\n\nEnter Choice: ");
+                    play_again = FourCheck();
+                    if(play_again == 2){//View stats
+                        playerStats(statsList, playerName);
+                        continue;
+                    }
+                    if (play_again == 3){//View leaderboard
+                        LeaderBoard(statsList);
+                        continue;
+                    }
+                }
+                
+            }   
+        }
+        static void Game(List<Stats> statsList, string playerName) {//This is the game function
+            //Round <round number>
+            Console.Write($"Round {dataUpdater(statsList,4,playerName)}\n\n\t1. Rock\n\t2. Paper\n\t3. Scissors\n\nWhat will it be? ");//Prints game menu with the round number
+            int decision = ThreeCheck();
+            Random ran = new Random();
+            int compDecision = ran.Next(1,4);//Gets random rumber from 1 to 3
+            //These if and if else statements are here to run through every option available
+            if(decision == 1){//If the player chooses rock
+                if(compDecision == 1){
+                    Console.WriteLine("You chose Rock. The computer chose Rock. You tied!\n");
+                    dataUpdater(statsList, 3,playerName);//Updates the data
+                    
+                }else if(compDecision == 2){
+                    Console.WriteLine("You chose Rock. The computer chose Paper. You lose!\n");
+                    dataUpdater(statsList, 2,playerName);//Updates the data
+                }else{
+                    Console.WriteLine("You chose Rock. The computer chose Scissors. You win!\n");
+                    dataUpdater(statsList, 1,playerName);//Updates the data
+                }
+            }else if (decision == 2){//If the player chooses Paper
+                if(compDecision == 1){
+                    Console.WriteLine("You chose Paper. The computer chose Rock. You win!\n");
+                    dataUpdater(statsList, 1,playerName);//Updates the data
+                }else if(compDecision == 2){
+                    Console.WriteLine("You chose Paper. The computer chose Paper. You tied!\n");
+                    dataUpdater(statsList, 3,playerName);//Updates the data
+                }else{
+                    Console.WriteLine("You chose Paper. The computer chose Scissors. You lose!\n");
+                    dataUpdater(statsList, 2,playerName);//Updates the data
+                }                
+            }else if (decision == 3){//If the player chooses Scissors
+                if(compDecision == 1){
+                    Console.WriteLine("You chose Scissors. The computer chose Rock. You lose!\n");
+                    dataUpdater(statsList, 2,playerName);//Updates the data
+                }else if(compDecision == 2){
+                    Console.WriteLine("You chose Scissors. The computer chose Paper. You win!\n");
+                    dataUpdater(statsList, 1,playerName);//Updates the data
+                }else{
+                    Console.WriteLine("You chose Scissors. The computer chose Scissors. You tied!\n");
+                    dataUpdater(statsList, 3,playerName);//Updates the data
+                }                
+            }
+            
+        }
+        static int dataUpdater(List<Stats> statsList, int stateOfGame, string playerName){//Updates the data in statsList
+            if(stateOfGame == 1){//If they win
+             foreach (var a in statsList){
+                    if (a.Name == playerName){
+                        a.Wins +=1;
+                    }
+                }   
+            }else if (stateOfGame == 2){//If they lose
+                foreach (var a in statsList){
+                    if (a.Name == playerName){
+                        a.Loses +=1;
+                    }
+                }
+            }else if (stateOfGame == 3){//If they tie
+                foreach (var a in statsList){
+                    if (a.Name == playerName){
+                        a.Ties +=1;
+                    }
+                }
+            }else if (stateOfGame == 4){//This is to increase the amount they have played
+                foreach (var a in statsList){
+                    if (a.Name == playerName){
+                        a.Plays +=1;
+                        return a.Plays;
+                    }
+                }
+            }
+            return 0;//Just here to ensure the program does not throw a hissy fit
+        }
+        static void playerStats(List<Stats> statsList, string playerName){//Returns the players stats
+            double ratio; 
+            double ratioRounded;
+            foreach (var a in statsList){
+                if(a.Name == playerName){
+                    ratio = (double)a.Wins/(double)a.Loses;
+                    ratioRounded = Math.Round(ratio, 2, MidpointRounding.AwayFromZero);
+                    Console.WriteLine($"{playerName}, here are your game play statistics...\nWins: {a.Wins}\nLoses: {a.Loses}\nTies: {a.Ties}\n\nWin/Loss Ratio: {ratioRounded}\n");
+                }
+            }
+        }
+        static string nameChecker(int gameDecision, string playerName, string userName, List<Stats> statsList){//Checks the names
+            while (gameDecision == 1 && userName == playerName){//Sees if the player is a new one that they choose a name not taken
+                Console.Write($"The name {playerName} is taken. Please enter a new name.\n--> ");
+                playerName = Console.ReadLine();
+                userName = (from stats in statsList where stats.Name == playerName select stats.Name).FirstOrDefault();
+            }
+            while (gameDecision ==2 && userName != playerName){//Sees if the player is a returning one and if their name is not there
+                Console.WriteLine($"{playerName}, your game could not be found.");
+                gameDecision = gameStart();
+                playerName = startUp(gameDecision);
+                userName = (from stats in statsList where stats.Name == playerName select stats.Name).FirstOrDefault(); 
+            }
+            return playerName;//Returns player name just incase the player had to change it
+        }
+        static void Main(string[] args){
+            string statsFilePath = "player_log.csv";//Sets the pathway that the data is
+            List<Stats> statsList = null;
+            try
+            {
+                statsList = StatsLoader.Load(statsFilePath);//Gets the data in a list
+            } catch (Exception e) {
+                Console.WriteLine(e.Message);
+                Environment.Exit(2);
+            }
+            int gameDecision = gameStart();
+            string playerName = startUp(gameDecision);
+            var userName = (from stats in statsList where stats.Name == playerName select stats.Name).FirstOrDefault();//Sees if there is a name there
+            playerName = nameChecker(gameDecision, playerName, userName, statsList);
+            JumpPad(playerName, gameDecision,statsList);
+            try
+                {
+                using (StreamWriter writetext = new StreamWriter(statsFilePath))
+                {
+                    
+                    foreach (var stat in statsList){
+                        writetext.WriteLine($"{stat.Name},{stat.Wins},{stat.Loses},{stat.Ties}");//Puts the updated stats list in the .csv file
+                    }
+                }
+                }catch(Exception e){
+                Console.WriteLine(e.Message);
+                //if report can't be created
+            }
+            finally
+            {
+                if(!File.Exists(statsFilePath))
+                {
+                    Console.WriteLine($"Sorry {playerName}, the game could not be saved.");
+                }
+                else{
+                    Console.WriteLine($"{playerName}, your game has been saved.");
+                }
+            }
+        }
+    }
+}</code>
+</body>
+</html>
