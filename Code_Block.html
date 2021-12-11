@@ -6,15 +6,26 @@ code { background-color: gray; color: blue; }
 </head>
 <body>
 <p>Here is some code:</p>
+  <br>
+
 <code>Console.WriteLine($"Win/Loss Ratio: {ratioRounded}");</code>
+  <br>
   <code>Console.WriteLine("\n---------------------------------");</code>
+  <br>
   <code>var playsNumber = from stats in statsList select stats.Plays;</code>
+  <br>
   <code>int totalPlays = 0;</code>
+  <br>
   <code>var winsNumber = from stats in statsList select stats;</code>
+  <br>
   <code>var losesNumber = from stats in statsList select stats;</code>
+  <br>
   <code>double totalWin = 0;</code>
+  <br>
   <code>double totalLoses = 0;</code>
+  <br>
   <code>double ratio = totalWin/totalLoses;</code>
+  <br>
   <code>double ratioRounded = Math.Round(ratio, 2, MidpointRounding.AwayFromZero);</code>
 
 </body>
